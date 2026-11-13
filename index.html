@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الهروب من السجن - 5 مراحل</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+        }
+        .game-card {
+            background-color: #1e293b;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #334155;
+            position: relative;
+        }
+        .header-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #f59e0b;
+            margin-bottom: 3px;
+        }
+        .sub-title {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0f172a;
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #334155;
+        }
+        .stage-badge {
+            font-size: 14px;
+            font-weight: bold;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .locks-box {
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+        .timer-box {
+            font-size: 18px;
+            font-weight: 900;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid #ef4444;
+        }
+        .sound-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .question-card {
+            background-color: #0f172a;
+            border: 2px solid #38bdf8;
+            border-radius: 16px;
+            padding: 20px 15px;
+            margin-bottom: 15px;
+        }
+        .q-label {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 10px;
+        }
+        .equation-text {
+            font-size: 30px;
+            font-weight: 900;
+            color: #38bdf8;
+            direction: ltr;
+            display: inline-block;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .opt-btn {
+            background-color: #334155;
+            color: #ffffff;
+            border: 2px solid #475569;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.15s;
+            width: 100%;
+        }
+        .opt-btn:active {
+            transform: scale(0.98);
+        }
+        .opt-btn.correct-ans {
+            background-color: #10b981 !important;
+            border-color: #10b981 !important;
+        }
+        .opt-btn.wrong-ans {
+            background-color: #ef4444 !important;
+            border-color: #ef4444 !important;
+        }
+        .screen-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #0f172a;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            z-index: 50;
+        }
+        .main-start-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 16px 36px;
+            font-size: 20px;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        .main-start-btn:active {
+            transform: scale(0.95);
+        }
+        .hidden-screen {
+            display: none !important;
+        }
+    </style>
+
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="لعبة الهروب من السجن - تحدي رياضيات من 5 مراحل">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="الهروب من السجن">
+
+</head>
+<body>
+
+    <div class="game-card">
+        <!-- شاشة البداية -->
+        <div id="start-screen" class="screen-overlay">
+            <h1 style="color:#f59e0b; margin-bottom:10px; font-size:28px;">🔒 الهروب من السجن</h1>
+            <p style="color:#cbd5e1; font-size:15px; line-height:1.6; text-align:center;">5 مراحل! كل مرحلة فيها 4 أقفال و30 ثانية.<br><strong style="color:#ef4444;">مسموح لك بغلطة واحدة، لكن لو أخطأت غلطين بتخسر وترجع للبداية!</strong></p>
+            <button class="main-start-btn" onclick="startGame()">ابدأ التحدي 🚀</button>
+        </div>
+
+        <!-- شاشة النهاية -->
+        <div id="end-screen" class="screen-overlay hidden-screen">
+            <h1 id="end-status-title" style="font-size:28px; margin-bottom:10px;"></h1>
+            <p id="end-status-desc" style="color:#cbd5e1; font-size:15px; margin-bottom:20px; text-align:center;"></p>
+            <button class="main-start-btn" onclick="startGame()">إعادة المحاولة 🔄</button>
+        </div>
+
+        <!-- الهيدر -->
+        <div class="header-title">🔒 الهروب من السجن</div>
+        <div class="sub-title">تحدي 5 مراحل (30 ثانية - مسموح غلطة واحدة)</div>
+
+        <!-- شريط الحالة -->
+        <div class="status-bar">
+            <div class="stage-badge" id="stage-badge-text">المرحلة 1/5</div>
+            <div class="locks-box" id="locks-display">🔒🔒🔒🔒</div>
+            <div class="timer-box" id="timer-text">30s</div>
+            <button class="sound-btn" onclick="toggleSound()" id="sound-btn-text">🔊 الصوت</button>
+        </div>
+
+        <!-- صندوق السؤال -->
+        <div class="question-card">
+            <div class="q-label" id="q-number-label">القفل 1 من 4</div>
+            <div class="equation-text" id="equation-display">5 + 3 = ؟</div>
+        </div>
+
+        <!-- خيارات الإجابة -->
+        <div class="options-grid" id="options-box"></div>
+    </div>
+
+    <script>
+        const stagesData = [
+            [
+                { eq: "-8 + 15 = ؟", choices: ["7", "-7", "23"], ans: 0 },
+                { eq: "12 + (-4) = ؟", choices: ["-8", "8", "16"], ans: 1 },
+                { eq: "-6 × 3 = ؟", choices: ["18", "-18", "-9"], ans: 1 },
+                { eq: "-20 ÷ (-4) = ؟", choices: ["-5", "5", "4"], ans: 1 }
+            ],
+            [
+                { eq: "-9 + (-9) = ؟", choices: ["0", "18", "-18"], ans: 2 },
+                { eq: "25 - (-5) = ؟", choices: ["20", "30", "-20"], ans: 1 },
+                { eq: "-7 × (-5) = ؟", choices: ["-35", "35", "12"], ans: 1 },
+                { eq: "56 ÷ (-8) = ؟", choices: ["7", "-7", "-8"], ans: 1 }
+            ],
+            [
+                { eq: "14 + (-19) = ؟", choices: ["5", "-5", "33"], ans: 1 },
+                { eq: "-30 - 15 = ؟", choices: ["-15", "-45", "15"], ans: 1 },
+                { eq: "8 × (-7) = ؟", choices: ["56", "-56", "-15"], ans: 1 },
+                { eq: "-72 ÷ 9 = ؟", choices: ["8", "-8", "-9"], ans: 1 }
+            ],
+            [
+                { eq: "-11 + 25 = ؟", choices: ["14", "-14", "36"], ans: 0 },
+                { eq: "-18 - (-6) = ؟", choices: ["-12", "12", "-24"], ans: 0 },
+                { eq: "-9 × (-9) = ؟", choices: ["-81", "81", "0"], ans: 1 },
+                { eq: "45 ÷ (-5) = ؟", choices: ["9", "-9", "-8"], ans: 1 }
+            ],
+            [
+                { eq: "-50 + 75 = ؟", choices: ["-25", "25", "125"], ans: 1 },
+                { eq: "33 + (-40) = ؟", choices: ["7", "-7", "-73"], ans: 1 },
+                { eq: "-12 × 4 = ؟", choices: ["48", "-48", "-8"], ans: 1 },
+                { eq: "-81 ÷ (-9) = ؟", choices: ["-9", "9", "8"], ans: 1 }
+            ]
+        ];
+
+        let currentStage = 0;
+        let currentLock = 0;
+        let secondsLeft = 30;
+        let wrongCount = 0;
+        let clockTimer = null;
+        let isSoundOn = true;
+        let isClickAllowed = true;
+
+        let audioContext = null;
+
+        function getAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            return audioContext;
+        }
+
+        function playTone(freq, type, duration) {
+            if (!isSoundOn) return;
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            isSoundOn = !isSoundOn;
+            document.getElementById('sound-btn-text').innerText = isSoundOn ? "🔊 الصوت" : "🔇 مكتوم";
+        }
+
+        function startGame() {
+            getAudioContext();
+            document.getElementById('start-screen').classList.add('hidden-screen');
+            document.getElementById('end-screen').classList.add('hidden-screen');
+            
+            currentStage = 0;
+            currentLock = 0;
+            wrongCount = 0;
+            isClickAllowed = true;
+
+            startStageTimer();
+            updateUI();
+        }
+
+        function startStageTimer() {
+            clearInterval(clockTimer);
+            secondsLeft = 30;
+            document.getElementById('timer-text').innerText = secondsLeft + "s";
+
+            clockTimer = setInterval(() => {
+                secondsLeft--;
+                document.getElementById('timer-text').innerText = secondsLeft + "s";
+                if (secondsLeft <= 0) {
+                    clearInterval(clockTimer);
+                    finishGame(false, `⏰ انتهى الوقت في المرحلة ${currentStage + 1}! خسرت وعليك البدء من جديد.`);
+                }
+            }, 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('stage-badge-text').innerText = `المرحلة ${currentStage + 1}/5`;
+            
+            let locks = "";
+            const stageLen = stagesData[currentStage].length;
+            for (let i = 0; i < stageLen; i++) {
+                locks += (i < currentLock) ? "🔓" : "🔒";
+            }
+            document.getElementById('locks-display').innerText = locks;
+
+            const qData = stagesData[currentStage][currentLock];
+            document.getElementById('q-number-label').innerText = `القفل ${currentLock + 1} من ${stageLen} (أخطاء: ${wrongCount}/2)`;
+            document.getElementById('equation-display').innerText = qData.eq;
+
+            const box = document.getElementById('options-box');
+            box.innerHTML = "";
+
+            qData.choices.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn';
+                btn.innerText = optText;
+                btn.onclick = () => handleAnswer(idx, btn);
+                box.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, clickedBtn) {
+            if (!isClickAllowed) return;
+            isClickAllowed = false;
+
+            const qData = stagesData[currentStage][currentLock];
+
+            if (selectedIndex === qData.ans) {
+                clickedBtn.classList.add('correct-ans');
+                playTone(587.33, 'sine', 0.2);
+                
+                setTimeout(() => {
+                    currentLock++;
+                    if (currentLock >= stagesData[currentStage].length) {
+                        currentStage++;
+                        currentLock = 0;
+                        if (currentStage >= stagesData.length) {
+                            clearInterval(clockTimer);
+                            finishGame(true, "🏆 أسطورة حقيقية! فتحت الـ 20 قفل بمهارة وهربت من السجن بنجاح!");
+                        } else {
+                            playTone(750, 'triangle', 0.3);
+                            startStageTimer();
+                            updateUI();
+                            isClickAllowed = true;
+                        }
+                    } else {
+                        updateUI();
+                        isClickAllowed = true;
+                    }
+                }, 300);
+            } else {
+                wrongCount++;
+                clickedBtn.classList.add('wrong-ans');
+                playTone(130, 'square', 0.5);
+                
+                setTimeout(() => {
+                    if (wrongCount >= 2) {
+                        finishGame(false, `❌ أخطأت مرتين (الحد الأقصى للخطأ هو 2)! خسرت وعليك إعادة التحدي من البداية.`);
+                    } else {
+                        clickedBtn.classList.remove('wrong-ans');
+                        alert(`⚠️ خطأ! متبقي لك محاولة خطأ واحدة قبل أن تخسر تماماً وتعود للبداية.`);
+                        isClickAllowed = true;
+                    }
+                }, 400);
+            }
+        }
+
+        function finishGame(isWin, message) {
+            clearInterval(clockTimer);
+            const endScreen = document.getElementById('end-screen');
+            const title = document.getElementById('end-status-title');
+            const desc = document.getElementById('end-status-desc');
+
+            if (isWin) {
+                title.innerText = "🎉 فوز ساحق!";
+                title.style.color = "#10b981";
+                playTone(880, 'triangle', 0.5);
+            } else {
+                title.innerText = "💥 خسرت في التحدي!";
+                title.style.color = "#ef4444";
+            }
+
+            desc.innerText = message;
+            endScreen.classList.remove('hidden-screen');
+        }
+    </script>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./service-worker.js").catch((err) => {
+            console.error("Service worker registration failed:", err);
+          });
+        });
+      }
+    </script>
+
+</body>
+</html>
